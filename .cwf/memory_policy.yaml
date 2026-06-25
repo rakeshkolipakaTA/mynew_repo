@@ -1,0 +1,48 @@
+# Declares WHEN and HOW the AI assistant should write to memory.
+# CWF does not install hooks or run anything automatically — this is a
+# contract the AI assistant follows (see AGENT.md), not a triggered
+# mechanism. See docs/extension-guide.md (in the framework repo) for wiring
+# real automation via a git hook, opt-in.
+
+auto_save:
+  # If true, the AI assistant saves without asking (still subject to
+  # AGENT.md's Memory Philosophy — don't save just because you're allowed to).
+  tasks: true
+  learnings: true   # gated by learning.schema.json's required `evidence` field, not by approval — see AGENT.md
+  incidents: true
+  sessions: true
+  decisions: false   # always show the human first — see `approval` below
+
+approval:
+  # If true, the AI assistant must show what it's about to save and wait
+  # for confirmation, even if auto_save is true for that type.
+  decisions: false
+  incidents: false
+  learnings: false
+  tasks: false
+  sessions: false
+
+session:
+  summarize_on_logout: true
+  summarize_daily: true
+  summarize_after_merge: true
+  # These describe intent for the AI assistant to follow when it can infer
+  # session boundaries from the conversation — CWF does not detect "logout"
+  # or "merge" itself.
+
+quality:
+  merge_duplicates: true       # prefer updating an existing record over creating a near-duplicate
+  archive_stale: true          # superseded/closed records should be archived, not left active
+  detect_conflicts: true       # surface conflicting entries to the human rather than silently picking one
+  max_duplicate_similarity: 0.85
+
+# Size budgets — enforced by convention, not by code.
+# Files over budget should be split or summarized before the next session.
+# The AI assistant should flag when a file approaches its budget.
+size_budgets:
+  instructions_md:   2048    # bytes — project facts only; if it grows, split into sections
+  rules_md:          2048    # bytes — hard constraints only; if it grows, remove redundancy
+  architecture_md:   5120    # bytes — vision and decisions to preserve; detail lives in code
+  agent_md:          8192    # bytes — router + behavior; if it grows, move content to workflows
+  single_workflow:   4096    # bytes per workflow file
+  single_memory_record: 2048 # bytes per decision/incident/learning/session file
