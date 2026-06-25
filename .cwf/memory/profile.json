@@ -1,0 +1,10 @@
+{
+  "_comment": "Personal to whoever is using the AI assistant on this machine. Gitignored at setup time (see README's Quick start). 'name' is the minimum required field — the AI assistant must ask for it if null, before saving any decision/incident/learning/session (see rules.md's Execution Rules). It's used to attribute and uniquely ID those shared records so two people working on the same repo never generate the same ID. 'role' is asked in the same breath as 'name' (see AGENT.md Step 0) — it's what lets the AI calibrate plain-language vs. technical answers for a non-coder without them needing to clone a role-specific starter kit or read a specific guide first.",
+  "name": null,
+  "role": null,
+  "team": null,
+  "email": null,
+  "working_style": null,
+  "current_focus": null,
+  "preferences": {}
+}
