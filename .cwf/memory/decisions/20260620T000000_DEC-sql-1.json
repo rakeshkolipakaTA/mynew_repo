@@ -1,0 +1,8 @@
+{
+  "title": "All SQL must use parameterized queries, no string interpolation",
+  "detail": "String-concatenated SQL caused a real incident. Every DB-access function must use the driver's parameterized query syntax.",
+  "id": "DEC-sql-1",
+  "created": "2026-06-20",
+  "author": "team",
+  "status": "active"
+}

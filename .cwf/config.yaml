@@ -1,0 +1,61 @@
+# Context Workspace Framework (CWF) v2 — entry point.
+# An AI assistant reads AGENT.md first (and only AGENT.md unconditionally).
+# AGENT.md is the router — it decides which other files to load based on
+# the task type. This config file documents the full structure for tooling
+# and human reference; it does not change the load-on-demand behavior.
+
+version: 2.0
+# v2 changes from v1.x:
+#   - AGENT.md is now a task-type router (lazy loading). Only AGENT.md is
+#     read unconditionally; all other files load on demand per task type.
+#   - sessions moved from a flat sessions.json array to per-file in
+#     memory/sessions/ (same git-merge-friendly pattern as decisions/
+#     incidents/learnings). Filename format: YYYYMMDDTHHMMSS_SES-N.json.
+#   - Size budgets added to memory_policy.yaml (enforced by convention).
+#   - Entry-point pointer files (CLAUDE.md, copilot-instructions.md,
+#     .cursorrules, adapters/*) updated to reflect one-hop routing.
+# v1.1 changed committed memory storage from one shared JSON array per type
+# to one file per record (git-merge-friendly).
+
+agent: AGENT.md          # THE entry point — read this and only this unconditionally
+adapters:
+  github_copilot: adapters/github-copilot.md
+  claude: adapters/claude.md
+  cursor: adapters/cursor.md
+  agents_md: adapters/agents-md.md   # generic, cross-vendor — see AGENT.md's bootstrap step
+
+# These files are loaded ON DEMAND by AGENT.md's routing table, not upfront.
+policy:
+  instructions: instructions.md     # project facts only — loaded for Coding, Architecture, most tasks
+  rules: rules.md                     # hard constraints — loaded for Coding, Review, Deployment, Debugging
+  architecture: architecture.md         # human-owned: system vision — loaded for Architecture, Planning, Documentation
+  architecture_observed: architecture.observed.md   # AI-owned: what the AI actually found in the code — see AGENT.md Step 3
+  memory_policy: memory_policy.yaml       # memory behavior — loaded for Memory update tasks only
+
+memory:
+  committed:           # shared knowledge, tracked in git — one file per record,
+                        # named YYYYMMDDTHHMMSS_<ID>.json, so concurrent additions
+                        # by different people never touch the same file
+    decisions: memory/decisions/
+    incidents: memory/incidents/
+    learnings: memory/learnings/
+    sessions:  memory/sessions/      # moved from flat array in v2; now per-file + committed
+    projects: memory/projects.json   # single shared file, written manually — no per-record split
+  local:                # personal/ephemeral, gitignored at setup time — single array file
+                        # is fine here, never merged across people
+    profile: memory/profile.json
+    tasks: memory/tasks.json
+  schemas: schemas/
+
+prompts:
+  session_extraction: prompts/session-extraction.md
+
+workflows:
+  # Each file is a self-contained spec: Purpose / When to Execute / Inputs /
+  # Outputs / Execution Phases / Memory Updates / Success Criteria.
+  # Loaded ON DEMAND by AGENT.md routing — not pre-loaded every session.
+  - workflows/task-completion.md   # the standard artifact pipeline
+  - workflows/documentation.md      # called by task-completion when the interface changes
+
+mcp:
+  config: mcp/servers.json
