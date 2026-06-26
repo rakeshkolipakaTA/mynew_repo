@@ -73,3 +73,8 @@ t2 = PythonOperator(
     python_callable=my_function,
     dag=dag,
     )
+t3 = PythonOperator(
+    task_id='test_job_mle3',
+    python_callable=my_function,
+    dag=dag,
+    )
